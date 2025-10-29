@@ -73,33 +73,8 @@ with col3:
 
     feature_values['CRP'] = st.number_input('CRP (mg/L)', min_value=0.0, max_value=200.0, value=5.0, step=0.1)
 
-
-# 加载模型函数
-@st.cache_resource
-def load_model():
-    """
-    加载训练好的XGBoost模型
-    注意：你需要先用joblib或pickle保存你的模型
-    """
-    try:
-        # 方法1：如果模型保存为joblib文件
-        model = joblib.load('XGB.pkl')
-    except:
-        try:
-            # 方法2：如果模型保存为pkl文件
-            model = pickle.load(open('XGB.pkl', 'rb'))
-        except:
-            # 方法3：重新创建模型（临时方案，实际使用时请替换为你的模型文件）
-            st.warning("⚠️ 未找到模型文件，使用默认参数创建新模型")
-            model = xgb.XGBClassifier(
-                max_depth=9, learning_rate=0.1, eta=0.98, gamma=0.4,
-                subsample=0.9, colsample_bytree=0.7
-            )
-    return model
-
-
 # 加载模型
-model = load_model()
+model = joblib.load('XGB.pkl')
 
 
 # 预测函数
@@ -240,6 +215,7 @@ except:
     ```
 
     """)
+
 
 
 
