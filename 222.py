@@ -84,11 +84,11 @@ def load_model():
     """
     try:
         # 方法1：如果模型保存为joblib文件
-        model = joblib.load('D:/RS/SX/XGB.pkl')
+        model = joblib.load('XGB.pkl')
     except:
         try:
             # 方法2：如果模型保存为pkl文件
-            model = pickle.load(open('xgb_model.pkl', 'rb'))
+            model = pickle.load(open('XGB.pkl', 'rb'))
         except:
             # 方法3：重新创建模型（临时方案，实际使用时请替换为你的模型文件）
             st.warning("⚠️ 未找到模型文件，使用默认参数创建新模型")
@@ -239,4 +239,5 @@ except:
     with open('xgb_model.pkl', 'wb') as f:
         pickle.dump(model, f)
     ```
+
     """)
