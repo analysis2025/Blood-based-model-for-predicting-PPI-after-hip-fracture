@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import xgb
+import xgboost as xgb
 import pickle
 import joblib
 from io import BytesIO
@@ -241,4 +241,5 @@ except:
     ```
 
     """)
+
 
