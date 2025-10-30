@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import joblib
+from joblib import load
 from io import BytesIO
 
 # 设置页面标题和布局
@@ -215,6 +215,7 @@ except:
     ```
 
     """)
+
 
 
 
