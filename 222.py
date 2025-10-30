@@ -3,7 +3,7 @@ import numpy as np
 from joblib import load
 
 # 加载模型
-model = load('D:/RS/SX/XGB.pkl')  # 请确保路径正确，且模型文件名为your_model.joblib
+model = load('XGB.pkl')  # 请确保路径正确，且模型文件名为your_model.joblib
 
 # 设置页面标题和布局
 st.set_page_config(
@@ -119,3 +119,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
