@@ -72,7 +72,7 @@ if st.button("🔍 Predict", use_container_width=True):
     # Probability Display
     st.subheader("Prediction Probability")
 
-    fig, ax = plt.subplots(figsize=(8, 8))  # Smaller chart
+    fig, ax = plt.subplots(figsize=(16, 16))  # Smaller chart
     ax.bar(["Hip fracture", "PPI"], probabilities, width=0.5)
     ax.set_ylabel("Probability")
     ax.set_ylim(0, 1)
@@ -82,4 +82,5 @@ if st.button("🔍 Predict", use_container_width=True):
 
     st.write(f"• Hip fracture probability: **{probabilities[0]*100:.2f}%**")
     st.write(f"• PPI probability: **{probabilities[1]*100:.2f}%**")
+
 
