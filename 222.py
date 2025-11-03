@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from joblib import load
+import joblib
 
 # 加载模型
 model = load('XGB.pkl')  # 请确保路径正确，且模型文件名为your_model.joblib
@@ -119,4 +119,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
