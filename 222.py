@@ -1,23 +1,22 @@
 import streamlit as st
 import numpy as np
 import joblib
+import matplotlib.pyplot as plt
 
 # Load model
-model = joblib.load('XGB.pkl')
+model = joblib.load("XGB.pkl")
 
+# Streamlit config
 st.set_page_config(
-    page_title="RB Screening Model",
-    page_icon="🩺",
+    page_title="Blood-based model for predicting PPI after hip fracture",
+    page_icon="🦴",
     layout="wide"
 )
 
-# --- Header ---
-st.markdown("""
-# 🩺 Retinoblastoma (RB) Blood-Based Screening
-### AI-assisted screening based on routine blood indicators
-""")
+st.title("🦴 Blood-based model for predicting PPI after hip fracture")
+st.write("Enter CBC and inflammatory markers to predict the risk of post-operative persistent inflammation (PPI).")
 
-# Feature list
+# Feature names
 features = [
     'WBC', 'RBC', 'HGB', 'HCT', 'MCV', 'MCH', 'MCHC', 'PLT',
     'LYMPH%', 'MONO%', 'NEUT%', 'EO%', 'BASO%',
@@ -25,71 +24,42 @@ features = [
     'RDW-CV', 'PDW', 'MPV', 'PCT', 'P-LCR', 'CRP'
 ]
 
-result_labels = {0: 'normal', 1: 'RB'}
+# Class labels
+result_labels = {0: "Hip fracture", 1: "PPI"}
 
-# Predict function
-def predict_and_show_results(data):
-    p = model.predict(data)
-    pro = model.predict_proba(data)
-    return result_labels[p[0]], {result_labels[i]:pro[0][i] for i in range(len(pro[0]))}
+def predict(input_data):
+    pred = model.predict(input_data)
+    prob = model.predict_proba(input_data)[0]
+    return result_labels[pred[0]], prob
 
-# --- Layout Design ---
-with st.container():
-    st.markdown("### 🧪 Enter Laboratory Indicators")
-    col1, col2, col3 = st.columns([1,1,1])
+# Input panel
+st.subheader("Patient Laboratory Input")
 
-    inputs = {}
+cols = st.columns(3)
+feature_values = {}
 
-    with col1:
-        st.subheader("CBC Basics")
-        inputs['WBC'] = st.number_input('WBC (10^9/L)', value=6.5)
-        inputs['RBC'] = st.number_input('RBC (10^12/L)', value=4.5)
-        inputs['HGB'] = st.number_input('HGB (g/L)', value=130.0)
-        inputs['HCT'] = st.number_input('HCT (%)', value=40.0)
-        inputs['PLT'] = st.number_input('PLT (10^9/L)', value=250.0)
+for idx, feature in enumerate(features):
+    col = cols[idx % 3]
+    feature_values[feature] = col.number_input(feature, value=1.0, format="%.3f")
 
-        st.subheader("Platelets")
-        inputs['PDW'] = st.number_input('PDW (fL)', value=10.0)
-        inputs['MPV'] = st.number_input('MPV (fL)', value=10.0)
-        inputs['PCT'] = st.number_input('PCT (%)', value=0.2)
-        inputs['P-LCR'] = st.number_input('P-LCR (%)', value=30.0)
+# Predict button
+if st.button("🔍 Predict", use_container_width=True):
+    if all(val is not None for val in feature_values.values()):
+        input_array = np.array([[feature_values[f] for f in features]]).astype(float)
+        predicted_class, probabilities = predict(input_array)
 
-    with col2:
-        st.subheader("RBC Indices")
-        inputs['MCV'] = st.number_input('MCV (fL)', value=90.0)
-        inputs['MCH'] = st.number_input('MCH (pg)', value=30.0)
-        inputs['MCHC'] = st.number_input('MCHC (g/L)', value=330.0)
-        inputs['RDW-CV'] = st.number_input('RDW-CV (%)', value=13.0)
+        st.success(f"Prediction: **{predicted_class}**")
 
-        st.subheader("Differential %")
-        inputs['LYMPH%'] = st.number_input('LYMPH% (%)', value=35.0)
-        inputs['MONO%'] = st.number_input('MONO% (%)', value=8.0)
-        inputs['NEUT%'] = st.number_input('NEUT% (%)', value=55.0)
-        inputs['EO%'] = st.number_input('EO% (%)', value=2.0)
-        inputs['BASO%'] = st.number_input('BASO% (%)', value=0.5)
+        # Bar plot
+        st.subheader("Prediction Probability")
+        fig, ax = plt.subplots()
+        ax.bar(["Hip fracture", "PPI"], probabilities)
+        ax.set_ylabel("Probability")
+        ax.set_ylim(0, 1)
+        st.pyplot(fig)
 
-    with col3:
-        st.subheader("Differential #")
-        inputs['LYMPH#'] = st.number_input('LYMPH#', value=2.0)
-        inputs['MONO#'] = st.number_input('MONO#', value=0.5)
-        inputs['NEUT#'] = st.number_input('NEUT#', value=3.5)
-        inputs['EO#'] = st.number_input('EO#', value=0.1)
-        inputs['BASO#'] = st.number_input('BASO#', value=0.03)
+        st.write(f"• Hip fracture probability: **{probabilities[0]*100:.2f}%**")
+        st.write(f"• PPI probability: **{probabilities[1]*100:.2f}%**")
 
-        st.subheader("Inflammation Marker")
-        inputs['CRP'] = st.number_input('CRP (mg/L)', value=5.0)
-
-# Predict Button
-center = st.columns([1,1,1])[1]
-with center:
-    if st.button("🔍 Screening", use_container_width=True):
-        arr = np.array([[inputs[f] for f in features]])
-        pred, prob = predict_and_show_results(arr)
-
-        st.success(f"Prediction: **{pred}**")
-        st.write("### Probability:")
-        for k,v in prob.items(): st.write(f"{k}: {v:.4f} ({v*100:.2f}%)")
-
-
-
-
+    else:
+        st.warning("Please fill in all feature values before predicting.")
